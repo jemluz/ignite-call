@@ -15,14 +15,14 @@ export const Hero = styled('div', {
   padding: '0 $10',
 
   // Overwrite Heading style when into Hero
-  [`${Heading}`]: {
+  [`> ${Heading}`]: {
     '@media(max-width: 600px)': {
       fontSize: '$6xl',
     },
   },
 
   // Overwrite Text style when into Hero
-  [`${Text}`]: {
+  [`> ${Text}`]: {
     maskType: '$2',
     color: '$gray200',
   },
