@@ -50,6 +50,8 @@ export default function Register() {
         name,
         username,
       })
+
+      await router.push('/register/connect-calendar')
     } catch (err) {
       // custom error
       if (err instanceof AxiosError && err?.response?.data.message) {
