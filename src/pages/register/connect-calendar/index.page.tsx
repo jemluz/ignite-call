@@ -1,10 +1,13 @@
-import { Button, Heading, MultiStep, Text } from '@ignite-ui/react'
-import { ArrowRight } from 'phosphor-react'
+import { Button, Heading, MultiStep, Text } from '@ignite-ui/react';
+import { ArrowRight } from 'phosphor-react';
 // import { api } from "../../../lib/axios"
-import { Container, Header } from '../styles'
-import { ConnectBox, ConnectItem } from './styles'
+import { Container, Header } from '../styles';
+import { ConnectBox, ConnectItem } from './styles';
+import { signIn, useSession } from 'next-auth/react';
 
 export default function Register() {
+  const session = useSession();
+
   // async function handleRegister() {
 
   // }
@@ -12,7 +15,7 @@ export default function Register() {
   return (
     <Container>
       <Header>
-        <Heading as="strong">Conecte sua agenda!</Heading>
+        <Heading as='strong'>Conecte sua agenda!</Heading>
         <Text>
           Conecte o seu calendário para verificar automaticamente as horas
           ocupadas e os novos eventos à medida em que são agendados.
@@ -24,17 +27,21 @@ export default function Register() {
       <ConnectBox>
         <ConnectItem>
           <Text>Google Calendar</Text>
-          <Button variant="secondary" size="sm">
+          <Button
+            variant='secondary'
+            size='sm'
+            onClick={() => signIn('google')}
+          >
             Conectar
             <ArrowRight />
           </Button>
         </ConnectItem>
 
-        <Button type="submit">
+        <Button type='submit'>
           Próximo passo
           <ArrowRight />
         </Button>
       </ConnectBox>
     </Container>
-  )
+  );
 }
