@@ -43,23 +43,23 @@ export default function Register() {
   }, [router.query?.username, setValue]);
 
   async function handleRegister(data: RegisterFormData) {
-    const { name, username } = data
-    
+    const { name, username } = data;
+
     try {
       await api.post('/users', {
         name,
         username,
-      })
+      });
 
-      await router.push('/register/connect-calendar')
+      await router.push('/register/connect-calendar');
     } catch (err) {
       // custom error
       if (err instanceof AxiosError && err?.response?.data.message) {
-        alert(err?.response?.data.message)
-        return 
+        alert(err?.response?.data.message);
+        return;
       }
 
-      console.error(err)
+      console.error(err);
     }
   }
 
