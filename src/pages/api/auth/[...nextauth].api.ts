@@ -1,40 +1,49 @@
 import NextAuth, { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import { PrismaAdapter } from '../../../lib/auth/prisma-adapter';
+import { NextApiRequest, NextApiResponse } from 'next';
 
-export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(),
-  providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID ?? '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
-      authorization: {
-        params: {
-          // setup which pemissions will be asked for
-          // userinfo.email
-          // userinfo.profile
-          // calendar
-          scope:
-            'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/calendar',
+export function buildNextAuthOptions(
+  req: NextApiRequest,
+  res: NextApiResponse
+): NextAuthOptions {
+  return {
+    adapter: PrismaAdapter(req, res),
+    providers: [
+      GoogleProvider({
+        clientId: process.env.GOOGLE_CLIENT_ID ?? '',
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
+        authorization: {
+          params: {
+            // setup which pemissions will be asked for
+            // userinfo.email
+            // userinfo.profile
+            // calendar
+            scope:
+              'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/calendar',
+          },
         },
+      }),
+    ],
+
+    // callbacks are strategic functions that will be called at specific moments
+    callbacks: {
+      async signIn({ account }) {
+        // that function could return true or false, where true means ok, and false means not ok
+        // the string`s return work as a false
+        if (
+          // if not has the calendar pemission, return an error
+          !account?.scope?.includes('https://www.googleapis.com/auth/calendar')
+        ) {
+          return '/register/connect-calendar?error=permissions';
+        }
+
+        return true;
       },
-    }),
-  ],
-
-  // callbacks are strategic functions that will be called at specific moments
-  callbacks: {
-    async signIn({ account }) {
-      // that function could return true or false, where true means ok, and false means not ok
-      // the string`s return work as a false
-      if (
-        // if not has the calendar pemission, return an error
-        !account?.scope?.includes('https://www.googleapis.com/auth/calendar')
-      ) {
-        return '/register/connect-calendar?error=permissions';
-      }
-
-      return true;
     },
-  },
-};
-export default NextAuth(authOptions);
+  };
+}
+
+export default async function auth(req: NextApiRequest, res: NextApiResponse) {
+  return await NextAuth(req, res, buildNextAuthOptions(req, res));
+}
