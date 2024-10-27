@@ -5,6 +5,7 @@ import { Container, Header } from '../styles';
 import { AuthError, ConnectBox, ConnectItem } from './styles';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
+import { MouseEvent } from 'react';
 
 export default function Register() {
   const session = useSession();
@@ -13,7 +14,8 @@ export default function Register() {
   const hasAuthError = !!router.query.error;
   const isSignedId = session.status === 'authenticated';
 
-  async function handleConnectCalendar() {
+  async function handleConnectCalendar(e: MouseEvent) {
+    e.preventDefault();
     await signIn('google');
   }
   // async function handleRegister() {
@@ -43,6 +45,7 @@ export default function Register() {
           ) : (
             <Button
               variant='secondary'
+              type='button'
               size='sm'
               onClick={handleConnectCalendar}
             >
@@ -59,7 +62,7 @@ export default function Register() {
           </AuthError>
         )}
 
-        <Button type='submit'>
+        <Button type='button'>
           Próximo passo
           <ArrowRight />
         </Button>
