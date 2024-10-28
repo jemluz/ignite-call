@@ -18,9 +18,8 @@ export default function Register() {
     e.preventDefault();
     await signIn('google');
   }
-  // async function handleRegister() {
 
-  // }
+  console.log(session);
 
   return (
     <Container>
@@ -45,7 +44,6 @@ export default function Register() {
           ) : (
             <Button
               variant='secondary'
-              type='button'
               size='sm'
               onClick={handleConnectCalendar}
             >
@@ -62,7 +60,7 @@ export default function Register() {
           </AuthError>
         )}
 
-        <Button type='button'>
+        <Button type='button' disabled={!isSignedId}>
           Próximo passo
           <ArrowRight />
         </Button>

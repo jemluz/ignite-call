@@ -26,13 +26,13 @@ export default async function handler(
     });
   }
 
+  // data = what will be send
+  // select = what will be return after the database does its database thing
   const user = await prisma.user.create({
-    // data = what will be send
     data: {
       name,
       username,
     },
-    // select = what will be return after the database does its database thing
   });
 
   // need res to set header (there is where goes the cookie)
