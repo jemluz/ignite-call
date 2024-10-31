@@ -5,7 +5,6 @@ import { Container, Header } from '../styles';
 import { AuthError, ConnectBox, ConnectItem } from './styles';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { MouseEvent } from 'react';
 
 export default function ConnectCalendar() {
   const session = useSession();
@@ -14,8 +13,7 @@ export default function ConnectCalendar() {
   const hasAuthError = !!router.query.error;
   const isSignedId = session.status === 'authenticated';
 
-  async function handleConnectCalendar(e: MouseEvent) {
-    e.preventDefault();
+  async function handleConnectCalendar() {
     await signIn('google');
   }
 
@@ -60,7 +58,7 @@ export default function ConnectCalendar() {
           </AuthError>
         )}
 
-        <Button type='button' disabled={!isSignedId}>
+        <Button type='submit' disabled={!isSignedId}>
           Próximo passo
           <ArrowRight />
         </Button>
