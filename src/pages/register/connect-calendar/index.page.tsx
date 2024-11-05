@@ -17,6 +17,11 @@ export default function ConnectCalendar() {
     await signIn('google');
   }
 
+  async function pushToTimeIntervals() {
+    console.log('clique');
+    await router.push('/register/time-intervals');
+  }
+
   console.log(session);
 
   return (
@@ -58,7 +63,7 @@ export default function ConnectCalendar() {
           </AuthError>
         )}
 
-        <Button type='submit' disabled={!isSignedId}>
+        <Button onClick={pushToTimeIntervals} disabled={!isSignedId}>
           Próximo passo
           <ArrowRight />
         </Button>
