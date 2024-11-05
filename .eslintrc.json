@@ -7,6 +7,7 @@
         "singleQuote": true,
         "jsxSingleQuote": true
       }
-    ]
+    ],
+    "camelcase": "off"
   }
 }
