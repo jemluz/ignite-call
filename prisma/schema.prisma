@@ -14,6 +14,7 @@ model User {
   id         String   @id @default(uuid())
   username   String   @unique
   name       String
+  bio        String?
   email      String?  @unique
   avatar_url String?
   created_at DateTime @default(now())
@@ -22,6 +23,7 @@ model User {
   timeIntervals UserTimeInterval[]
   @@map("users")
 }
+
 model Account {
   id                  String  @id @default(cuid())
   user_id             String
@@ -39,6 +41,7 @@ model Account {
   @@unique([provider, provider_account_id])
   @@map("accounts")
 }
+
 model Session {
   id            String   @id @default(cuid())
   session_token String   @unique
@@ -47,6 +50,7 @@ model Session {
   user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
   @@map("sessions")
 }
+
 model UserTimeInterval {
   id                    String @id @default(uuid())
   week_day              Int
