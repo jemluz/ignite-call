@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import { CaretLeft, CaretRight } from 'phosphor-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { getWeekDays } from '../../utils/get-week-days';
 import {
   CalendarActions,
@@ -11,25 +11,61 @@ import {
   CalendarTitle,
 } from './styles';
 
+// when we treating with dates in js, its important to keep in mind:
+// day == week day
+// date == day number
 export function Calendar() {
+  const firstDate = dayjs().set('date', 1);
+  // set wich day is today
   const [currentDate, setCurrentDate] = useState(() => {
-    return dayjs().set('date', 1);
+    return firstDate;
   });
 
+  // return as QUA QUI SEX
+  const shortWeekDays = getWeekDays({ short: true });
+
+  // return as "November 2024"
+  const currentMonth = currentDate.format('MMMM');
+  const currentYear = currentDate.format('YYYY');
+
+  // previous month nav
   function handlePreviousMonth() {
     const previousMonth = currentDate.subtract(1, 'month');
     setCurrentDate(previousMonth);
   }
 
+  // next month nav
   function handleNextMonth() {
     const nextMonth = currentDate.add(1, 'month');
     setCurrentDate(nextMonth);
   }
 
-  const shortWeekDays = getWeekDays({ short: true });
+  // return final array that will fill all the calendar days slots
+  const calendarWeeks = useMemo(() => {
+    // get days of current month
+    const daysInMonthArray = Array.from({
+      length: currentDate.daysInMonth(),
+    }).map((_, index) => {
+      return currentDate.set('date', index + 1); // ignore 0 index
+    });
 
-  const currentMonth = currentDate.format('MMMM');
-  const currentYear = currentDate.format('YYYY');
+    // wich weekday is, as a namber (basis on 1 for SUN and 7 for SAT)
+    const firstWeekDay = currentDate.get('day');
+
+    // get the remaining days of previous month
+    const previousMonthFillArray = Array.from({
+      length: firstWeekDay,
+    })
+      .map((_, index) => {
+        return currentDate.subtract(index + 1, 'day');
+      })
+      .reverse();
+
+    // return previous month + current month
+    return [...previousMonthFillArray, ...daysInMonthArray];
+  }, [currentDate]);
+
+  console.log(calendarWeeks);
 
   return (
     <CalendarContainer>
