@@ -11,6 +11,15 @@ import {
   CalendarTitle,
 } from './styles';
 
+interface CalendarWeek {
+  weekNumber: number;
+  days: Array<{
+    date: dayjs.Dayjs;
+    disabled: boolean;
+  }>;
+}
+type CalendarWeeks = CalendarWeek[];
+
 // when we treating with dates in js, its important to keep in mind:
 // day == week day
 // date == day number
@@ -61,8 +70,55 @@ export function Calendar() {
       })
       .reverse();
 
-    // return previous month + current month
-    return [...previousMonthFillArray, ...daysInMonthArray];
+    const lastDayInCurrentMonth = currentDate.set(
+      'date',
+      currentDate.daysInMonth()
+    );
+
+    // wich weekday is, as a namber (basis on 1 for SUN and 7 for SAT)
+    const lastWeekDay = lastDayInCurrentMonth.get('day');
+
+    // get the remaining days of next month
+    const nextMonthFillArray = Array.from({
+      length: 7 - (lastWeekDay + 1),
+    }).map((_, i) => {
+      return lastDayInCurrentMonth.add(i + 1, 'day');
+    });
+
+    // return previous month + current month + next month
+    // add a disabled status in all the next and previous month days
+    const calendarDays = [
+      ...previousMonthFillArray.map((date) => {
+        return { date, disabled: true };
+      }),
+      ...daysInMonthArray.map((date) => {
+        return { date, disabled: false };
+      }),
+      ...nextMonthFillArray.map((date) => {
+        return { date, disabled: true };
+      }),
+    ];
+
+    // reduce function structure (finalArray, element, index, originalArray).
+    // reduce the calendarDays to an array with weeks arrays with days.
+    const calendarWeeks = calendarDays.reduce<CalendarWeeks>(
+      (weeks, _, i, original) => {
+        const isNewWeek = i % 7 === 0;
+
+        if (isNewWeek) {
+          weeks.push({
+            weekNumber: i / 7 + 1,
+            days: original.slice(i, i + 7),
+            // slice(init, end)
+          });
+        }
+        return weeks;
+      },
+      []
+    );
+
+    // end of odisseia
+    return calendarWeeks;
   }, [currentDate]);
 
   console.log(calendarWeeks);
@@ -93,44 +149,21 @@ export function Calendar() {
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td>
-              <CalendarDay>1</CalendarDay>
-            </td>
-            <td>
-              <CalendarDay disabled>2</CalendarDay>
-            </td>
-            <td>
-              <CalendarDay>3</CalendarDay>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <CalendarDay>1</CalendarDay>
-            </td>
-            <td>
-              <CalendarDay>1</CalendarDay>
-            </td>
-            <td>
-              <CalendarDay>1</CalendarDay>
-            </td>
-            <td>
-              <CalendarDay>1</CalendarDay>
-            </td>
-            <td>
-              <CalendarDay>1</CalendarDay>
-            </td>
-            <td>
-              <CalendarDay disabled>2</CalendarDay>
-            </td>
-            <td>
-              <CalendarDay>3</CalendarDay>
-            </td>
-          </tr>
+          {calendarWeeks.map(({ weekNumber, days }) => {
+            return (
+              <tr key={weekNumber}>
+                {days.map(({ date, disabled }) => {
+                  return (
+                    <td key={date.toString()}>
+                      <CalendarDay disabled={disabled}>
+                        {date.get('date')}
+                      </CalendarDay>
+                    </td>
+                  );
+                })}
+              </tr>
+            );
+          })}
         </tbody>
       </CalendarBody>
     </CalendarContainer>
