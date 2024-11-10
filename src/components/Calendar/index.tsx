@@ -11,6 +11,11 @@ import {
   CalendarTitle,
 } from './styles';
 
+interface CalendarProps {
+  selectedDate: Date | null;
+  onDateSelected: (date: Date) => void;
+}
+
 interface CalendarWeek {
   weekNumber: number;
   days: Array<{
@@ -18,12 +23,13 @@ interface CalendarWeek {
     disabled: boolean;
   }>;
 }
+
 type CalendarWeeks = CalendarWeek[];
 
 // when we treating with dates in js, its important to keep in mind:
 // day == week day
 // date == day number
-export function Calendar() {
+export function Calendar({ selectedDate, onDateSelected }: CalendarProps) {
   const firstDate = dayjs().set('date', 1);
   // set wich day is today
   const [currentDate, setCurrentDate] = useState(() => {
@@ -92,7 +98,7 @@ export function Calendar() {
         return { date, disabled: true };
       }),
       ...daysInMonthArray.map((date) => {
-        return { date, disabled: false };
+        return { date, disabled: date.endOf('day').isBefore(new Date()) };
       }),
       ...nextMonthFillArray.map((date) => {
         return { date, disabled: true };
@@ -155,7 +161,10 @@ export function Calendar() {
                 {days.map(({ date, disabled }) => {
                   return (
                     <td key={date.toString()}>
-                      <CalendarDay disabled={disabled}>
+                      <CalendarDay
+                        onClick={() => onDateSelected(date.toDate())}
+                        disabled={disabled}
+                      >
                         {date.get('date')}
                       </CalendarDay>
                     </td>
