@@ -63,7 +63,7 @@ export default async function handler(
 
   // If the date has already passed, availability`s array will be empty
   if (isPastDate) {
-    return res.json({ availability: [] });
+    return res.json({ possibleTimes: [], availableTimes: [] });
   }
 
   // find time intervals corresponding with the specific date
@@ -76,7 +76,7 @@ export default async function handler(
 
   // if the user has no availability for the specified day, availability`s array will be empty
   if (!userAvailability) {
-    return res.json({ availability: [] });
+    return res.json({ possibleTimes: [], availableTimes: [] });
   }
 
   const { time_start_in_minutes, time_end_in_minutes } = userAvailability;
