@@ -9,11 +9,12 @@ import { prisma } from '../../../../lib/prisma';
  * @param {string} date - Date as `YYYY-MM-DD`, passed as query param
  *
  * @returns {object} 200 - Success:
- * - Returns an array of available time slots (`possibleTimes`) if the date is valid.
+ * - Returns a pair of numeric arrays (`possibleTimes`, `availableTimes`) if the date is valid.
  * Example: If the user has availability from 10:00 AM to 12:00 PM, the response could be:
  *   ```json
  *   {
  *     "possibleTimes": [10, 11, 12]
+ *     "availableTimes": [11, 12]
  *   }
  *   ```
  * - Returns an empty array (`availability: []`) if the date is in the past.
@@ -89,6 +90,28 @@ export default async function handler(
     }
   );
 
-  // return as array like [10, 11, 12]
-  return res.json({ possibleTimes });
+  // searches for any times that has already been scheduling
+  const blockedTimes = await prisma.scheduling.findMany({
+    select: {
+      date: true,
+    }, // taking only the date column property
+    where: {
+      user_id: user.id,
+      date: {
+        // gte = greater than or equal
+        gte: referenceDate.set('hour', startHour).toDate(),
+        lte: referenceDate.set('hour', endHour).toDate(),
+      },
+    },
+  });
+
+  // filter possibleTimes by removing all blocked times
+  const availableTimes = possibleTimes.filter((time) => {
+    return !blockedTimes.some(
+      (blockedTime) => blockedTime.date.getHours() === time
+    );
+  });
+
+  // return possibleTimes and availableTimes, each one as array like [10, 11, 12]
+  return res.json({ possibleTimes, availableTimes });
 }
