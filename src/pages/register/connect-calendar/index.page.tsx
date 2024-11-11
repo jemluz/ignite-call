@@ -5,21 +5,21 @@ import { Container, Header } from '../styles';
 import { AuthError, ConnectBox, ConnectItem } from './styles';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { MouseEvent } from 'react';
 
-export default function Register() {
+export default function ConnectCalendar() {
   const session = useSession();
   const router = useRouter();
 
   const hasAuthError = !!router.query.error;
   const isSignedId = session.status === 'authenticated';
 
-  async function handleConnectCalendar(e: MouseEvent) {
-    e.preventDefault();
+  async function handleConnectCalendar() {
     await signIn('google');
   }
 
-  console.log(session);
+  async function handleNavigateToNextStep() {
+    await router.push('/register/time-intervals');
+  }
 
   return (
     <Container>
@@ -60,7 +60,11 @@ export default function Register() {
           </AuthError>
         )}
 
-        <Button type='button' disabled={!isSignedId}>
+        <Button
+          onClick={handleNavigateToNextStep}
+          type='submit'
+          disabled={!isSignedId}
+        >
           Próximo passo
           <ArrowRight />
         </Button>
