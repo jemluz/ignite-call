@@ -107,9 +107,13 @@ export default async function handler(
 
   // filter possibleTimes by removing all blocked times
   const availableTimes = possibleTimes.filter((time) => {
-    return !blockedTimes.some(
+    const isTimeBlocked = blockedTimes.some(
       (blockedTime) => blockedTime.date.getHours() === time
     );
+
+    // block hours that already passed up
+    const isTimeInPast = referenceDate.set('hour', time).isBefore(new Date())
+    return !isTimeBlocked && !isTimeInPast
   });
 
   // return possibleTimes and availableTimes, each one as array like [10, 11, 12]
