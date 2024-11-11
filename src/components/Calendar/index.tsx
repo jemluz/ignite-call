@@ -18,7 +18,7 @@ interface CalendarWeek {
   weekNumber: number;
   days: Array<{
     date: dayjs.Dayjs;
-    disabled: boolean | undefined;
+    disabled: boolean;
   }>;
 }
 
@@ -45,6 +45,18 @@ export function Calendar({ selectedDate, onDateSelected }: CalendarProps) {
 
   const router = useRouter();
 
+  // previous month nav
+  function handlePreviousMonth() {
+    const previousMonth = currentDate.subtract(1, 'month');
+    setCurrentDate(previousMonth);
+  }
+
+  // next month nav
+  function handleNextMonth() {
+    const nextMonth = currentDate.add(1, 'month');
+    setCurrentDate(nextMonth);
+  }
+
   // return as QUA QUI SEX
   const shortWeekDays = getWeekDays({ short: true });
 
@@ -70,20 +82,12 @@ export function Calendar({ selectedDate, onDateSelected }: CalendarProps) {
     },
   });
 
-  // previous month nav
-  function handlePreviousMonth() {
-    const previousMonth = currentDate.subtract(1, 'month');
-    setCurrentDate(previousMonth);
-  }
-
-  // next month nav
-  function handleNextMonth() {
-    const nextMonth = currentDate.add(1, 'month');
-    setCurrentDate(nextMonth);
-  }
-
   // return final array that will fill all the calendar days slots
   const calendarWeeks = useMemo(() => {
+    if (!blockedDates) {
+      return [];
+    }
+
     // get days of current month
     const daysInMonthArray = Array.from({
       length: currentDate.daysInMonth(),
@@ -129,7 +133,7 @@ export function Calendar({ selectedDate, onDateSelected }: CalendarProps) {
           date,
           disabled:
             date.endOf('day').isBefore(new Date()) ||
-            blockedDates?.blockedWeekDays.includes(date.get('day')),
+            blockedDates.blockedWeekDays.includes(date.get('day')),
         };
       }),
       ...nextMonthFillArray.map((date) => {
