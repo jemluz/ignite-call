@@ -1,7 +1,7 @@
-import dayjs from "dayjs";
-import { CaretLeft, CaretRight } from "phosphor-react";
-import { useMemo, useState } from "react";
-import { getWeekDays } from "../../utils/get-week-days";
+import dayjs from 'dayjs';
+import { CaretLeft, CaretRight } from 'phosphor-react';
+import { useMemo, useState } from 'react';
+import { getWeekDays } from '../../utils/get-week-days';
 import {
   CalendarActions,
   CalendarBody,
@@ -9,10 +9,10 @@ import {
   CalendarDay,
   CalendarHeader,
   CalendarTitle,
-} from "./styles";
-import { useRouter } from "next/router";
-import { useQuery } from "@tanstack/react-query";
-import { api } from "../../lib/axios";
+} from './styles';
+import { useRouter } from 'next/router';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '../../lib/axios';
 
 interface CalendarWeek {
   weekNumber: number;
@@ -38,7 +38,7 @@ interface CalendarProps {
 // day == week day
 // date == day number
 export function Calendar({ selectedDate, onDateSelected }: CalendarProps) {
-  const firstDate = dayjs().set("date", 1);
+  const firstDate = dayjs().set('date', 1);
   // set wich day is today
   const [currentDate, setCurrentDate] = useState(() => {
     return firstDate;
@@ -48,13 +48,13 @@ export function Calendar({ selectedDate, onDateSelected }: CalendarProps) {
 
   // previous month nav
   function handlePreviousMonth() {
-    const previousMonth = currentDate.subtract(1, "month");
+    const previousMonth = currentDate.subtract(1, 'month');
     setCurrentDate(previousMonth);
   }
 
   // next month nav
   function handleNextMonth() {
-    const nextMonth = currentDate.add(1, "month");
+    const nextMonth = currentDate.add(1, 'month');
     setCurrentDate(nextMonth);
   }
 
@@ -62,21 +62,21 @@ export function Calendar({ selectedDate, onDateSelected }: CalendarProps) {
   const shortWeekDays = getWeekDays({ short: true });
 
   // return as "November 2024"
-  const currentMonth = currentDate.format("MMMM");
-  const currentYear = currentDate.format("YYYY");
+  const currentMonth = currentDate.format('MMMM');
+  const currentYear = currentDate.format('YYYY');
 
   const username = String(router.query.username);
   const { data: blockedDates } = useQuery<BlockedDates>({
     queryKey: [
-      "blocked-dates",
-      currentDate.get("year"),
-      currentDate.get("month"),
+      'blocked-dates',
+      currentDate.get('year'),
+      currentDate.get('month'),
     ],
     queryFn: async () => {
       const response = await api.get(`/users/${username}/blocked-dates`, {
         params: {
-          year: currentDate.get("year"),
-          month: currentDate.get("month") + 1, // the month in mysql starts count by 0,
+          year: currentDate.get('year'),
+          month: currentDate.get('month') + 1, // the month in mysql starts count by 0,
         },
       });
       return response.data;
@@ -88,40 +88,40 @@ export function Calendar({ selectedDate, onDateSelected }: CalendarProps) {
     if (!blockedDates) {
       return [];
     }
-    console.log("calendarWeeks ~ blockedDates", blockedDates);
+    console.log('calendarWeeks ~ blockedDates', blockedDates);
 
     // get days of current month
     const daysInMonthArray = Array.from({
       length: currentDate.daysInMonth(),
     }).map((_, index) => {
-      return currentDate.set("date", index + 1); // ignore 0 index
+      return currentDate.set('date', index + 1); // ignore 0 index
     });
 
     // wich weekday is, as a namber (basis on 1 for SUN and 7 for SAT)
-    const firstWeekDay = currentDate.get("day");
+    const firstWeekDay = currentDate.get('day');
 
     // get the remaining days of previous month
     const previousMonthFillArray = Array.from({
       length: firstWeekDay,
     })
       .map((_, index) => {
-        return currentDate.subtract(index + 1, "day");
+        return currentDate.subtract(index + 1, 'day');
       })
       .reverse();
 
     const lastDayInCurrentMonth = currentDate.set(
-      "date",
+      'date',
       currentDate.daysInMonth()
     );
 
     // wich weekday is, as a namber (basis on 1 for SUN and 7 for SAT)
-    const lastWeekDay = lastDayInCurrentMonth.get("day");
+    const lastWeekDay = lastDayInCurrentMonth.get('day');
 
     // get the remaining days of next month
     const nextMonthFillArray = Array.from({
       length: 7 - (lastWeekDay + 1),
     }).map((_, i) => {
-      return lastDayInCurrentMonth.add(i + 1, "day");
+      return lastDayInCurrentMonth.add(i + 1, 'day');
     });
 
     // return previous month + current month + next month
@@ -134,9 +134,9 @@ export function Calendar({ selectedDate, onDateSelected }: CalendarProps) {
         return {
           date,
           disabled:
-            date.endOf("day").isBefore(new Date()) ||
-            blockedDates.blockedWeekDays.includes(date.get("day")) ||
-            blockedDates.blockedDates.includes(date.get("date")),
+            date.endOf('day').isBefore(new Date()) ||
+            blockedDates.blockedWeekDays.includes(date.get('day')) ||
+            blockedDates.blockedDates.includes(date.get('date')),
         };
       }),
       ...nextMonthFillArray.map((date) => {
@@ -202,7 +202,7 @@ export function Calendar({ selectedDate, onDateSelected }: CalendarProps) {
                         onClick={() => onDateSelected(date.toDate())}
                         disabled={disabled}
                       >
-                        {date.get("date")}
+                        {date.get('date')}
                       </CalendarDay>
                     </td>
                   );

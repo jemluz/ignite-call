@@ -1,6 +1,6 @@
-import dayjs from "dayjs";
-import { NextApiRequest, NextApiResponse } from "next";
-import { prisma } from "../../../../lib/prisma";
+import dayjs from 'dayjs';
+import { NextApiRequest, NextApiResponse } from 'next';
+import { prisma } from '../../../../lib/prisma';
 
 /**
  * @route GET /api/users/[username]/availability
@@ -37,7 +37,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (req.method !== "GET") {
+  if (req.method !== 'GET') {
     return res.status(405).end();
   }
 
@@ -45,7 +45,7 @@ export default async function handler(
   const { date } = req.query;
 
   if (!date) {
-    return res.status(400).json({ message: "Date no provided." });
+    return res.status(400).json({ message: 'Date no provided.' });
   }
 
   const user = await prisma.user.findUnique({
@@ -55,11 +55,11 @@ export default async function handler(
   });
 
   if (!user) {
-    return res.status(400).json({ message: "User does not exist." });
+    return res.status(400).json({ message: 'User does not exist.' });
   }
 
   const referenceDate = dayjs(String(date));
-  const isPastDate = referenceDate.endOf("day").isBefore(new Date());
+  const isPastDate = referenceDate.endOf('day').isBefore(new Date());
 
   // If the date has already passed, availability`s array will be empty
   if (isPastDate) {
@@ -70,7 +70,7 @@ export default async function handler(
   const userAvailability = await prisma.userTimeInterval.findFirst({
     where: {
       user_id: user.id,
-      week_day: referenceDate.get("day"),
+      week_day: referenceDate.get('day'),
     },
   });
 
@@ -99,8 +99,8 @@ export default async function handler(
       user_id: user.id,
       date: {
         // gte = greater than or equal
-        gte: referenceDate.set("hour", startHour).toDate(),
-        lte: referenceDate.set("hour", endHour).toDate(),
+        gte: referenceDate.set('hour', startHour).toDate(),
+        lte: referenceDate.set('hour', endHour).toDate(),
       },
     },
   });
@@ -112,7 +112,7 @@ export default async function handler(
     );
 
     // block hours that already passed up
-    const isTimeInPast = referenceDate.set("hour", time).isBefore(new Date());
+    const isTimeInPast = referenceDate.set('hour', time).isBefore(new Date());
     return !isTimeBlocked && !isTimeInPast;
   });
 
