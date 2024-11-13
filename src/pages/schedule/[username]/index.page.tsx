@@ -1,9 +1,9 @@
-import { Avatar, Heading, Text } from '@ignite-ui/react';
-import { GetStaticPaths, GetStaticProps } from 'next';
-import { prisma } from '../../../lib/prisma';
-import { Container, UserHeader } from './styles';
-import { ScheduleForm } from './ScheduleForm';
-import { NextSeo } from 'next-seo';
+import { Avatar, Heading, Text } from "@ignite-ui/react";
+import { GetStaticPaths, GetStaticProps } from "next";
+import { prisma } from "../../../lib/prisma";
+import { Container, UserHeader } from "./styles";
+import { ScheduleForm } from "./ScheduleForm";
+import { NextSeo } from "next-seo";
 
 interface ScheduleProps {
   user: {
@@ -40,7 +40,7 @@ export default function Schedule({ user }: ScheduleProps) {
 export const getStaticPaths: GetStaticPaths = async () => {
   return {
     paths: [],
-    fallback: 'blocking',
+    fallback: "blocking",
   };
 };
 
