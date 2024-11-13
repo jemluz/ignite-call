@@ -57,28 +57,28 @@ export const getStaticPaths: GetStaticPaths = async () => {
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   try {
     const username = String(params?.username);
-  const user = await prisma.user.findUnique({
-    where: {
-      username,
-    },
-  });
-
-  if (!user) {
-    return {
-      notFound: true,
-    };
-  }
-
-  return {
-    props: {
-      user: {
-        name: user.name,
-        bio: user.bio,
-        avatarUrl: user.avatar_url,
+    const user = await prisma.user.findUnique({
+      where: {
+        username,
       },
-    },
-    revalidate: 60 * 60 * 24, // 1 day
-  };
+    });
+
+    if (!user) {
+      return {
+        notFound: true,
+      };
+    }
+
+    return {
+      props: {
+        user: {
+          name: user.name,
+          bio: user.bio,
+          avatarUrl: user.avatar_url,
+        },
+      },
+      revalidate: 60 * 60 * 24, // 1 day
+    };
   } catch (error) {
     console.error("Failed to fetch data:", error);
     return { notFound: true }; // Ou handle como preferir
