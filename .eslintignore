@@ -1,1 +1,5 @@
 *.d.ts
+/src/@types/prisma.types.ts
+/src/components/Calendar/index.tsx
+/src/lib/auth/prisma-adapter.ts
+/src/pages/register/time-intervals/index.page.tsx

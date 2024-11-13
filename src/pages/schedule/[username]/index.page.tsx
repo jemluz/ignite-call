@@ -44,7 +44,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
       fallback: "blocking",
     };
   } catch (error) {
-    console.error("Failed to fetch paths:", error);
+    console.error("Schedule [user] - Failed to fetch paths:", error);
     return {
       paths: [],
       fallback: false,
@@ -80,7 +80,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       revalidate: 60 * 60 * 24, // 1 day
     };
   } catch (error) {
-    console.error("Failed to fetch data:", error);
+    console.error("Schedule [user] - Failed to fetch data:", error);
     return { notFound: true }; // Ou handle como preferir
   }
 };

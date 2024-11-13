@@ -90,14 +90,19 @@ export default function UpdateProfile() {
   );
 }
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
-  const session = await unstable_getServerSession(
-    req,
-    res,
-    buildNextAuthOptions(req, res)
-  );
-  return {
-    props: {
-      session,
-    },
-  };
+  try {
+    const session = await unstable_getServerSession(
+      req,
+      res,
+      buildNextAuthOptions(req, res)
+    );
+    return {
+      props: {
+        session,
+      },
+    };
+  } catch (error) {
+    console.error("Update profile - Failed to fetch data:", error);
+    return { notFound: true }; // Ou handle como preferir
+  }
 };
