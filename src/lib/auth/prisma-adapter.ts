@@ -1,23 +1,23 @@
-import { Adapter } from 'next-auth/adapters';
-import { prisma } from '../prisma';
-import { NextApiRequest, NextApiResponse, NextPageContext } from 'next';
-import { destroyCookie, parseCookies } from 'nookies';
-import { Account, User } from '../../@types/prisma.types';
+import { Adapter } from "next-auth/adapters";
+import { prisma } from "../prisma";
+import { NextApiRequest, NextApiResponse, NextPageContext } from "next";
+import { destroyCookie, parseCookies } from "nookies";
+import { Account, User } from "../../@types/prisma.types";
 
 // User = the main user account (app context)
 // Acount = the link between user and some provider (like google acount)
 // Session = when user logged into app
 
 export function PrismaAdapter(
-  req: NextApiRequest | NextPageContext['req'],
-  res: NextApiResponse | NextPageContext['res']
+  req: NextApiRequest | NextPageContext["req"],
+  res: NextApiResponse | NextPageContext["res"]
 ): Adapter {
   return {
     async createUser(user: User) {
-      const { '@ignitecall:userId': userIdOnCookies } = parseCookies({ req });
+      const { "@ignitecall:userId": userIdOnCookies } = parseCookies({ req });
 
       if (!userIdOnCookies) {
-        throw new Error('User ID not found on cookies.');
+        throw new Error("User ID not found on cookies.");
       }
 
       const prismaUser = await prisma.user.update({
@@ -31,8 +31,8 @@ export function PrismaAdapter(
         },
       });
 
-      destroyCookie({ res }, '@ignitecall:userId', {
-        path: '/',
+      destroyCookie({ res }, "@ignitecall:userId", {
+        path: "/",
       });
 
       return {
