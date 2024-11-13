@@ -4,8 +4,8 @@
     "prettier/prettier": [
       "error",
       {
-        "singleQuote": true,
-        "jsxSingleQuote": true
+        "singleQuote": false,
+        "jsxSingleQuote": false
       }
     ],
     "camelcase": "off"
