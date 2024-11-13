@@ -38,16 +38,25 @@ export default function Schedule({ user }: ScheduleProps) {
 // with paths = [] we're saying to next, to not generate no one [username] path at build moment, so generation will be done as users access
 // for resume, each [username] page just will be generated at the access moment
 export const getStaticPaths: GetStaticPaths = async () => {
-  return {
-    paths: [],
-    fallback: "blocking",
-  };
+  try {
+    return {
+      paths: [],
+      fallback: "blocking",
+    };
+  } catch (error) {
+    console.error("Failed to fetch paths:", error);
+    return {
+      paths: [],
+      fallback: false,
+    };
+  }
 };
 
 // static pages dont have req and res object
 // bcs them are created with build
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const username = String(params?.username);
+  try {
+    const username = String(params?.username);
   const user = await prisma.user.findUnique({
     where: {
       username,
@@ -70,4 +79,8 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     },
     revalidate: 60 * 60 * 24, // 1 day
   };
+  } catch (error) {
+    console.error("Failed to fetch data:", error);
+    return { notFound: true }; // Ou handle como preferir
+  }
 };
