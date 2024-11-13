@@ -42,25 +42,28 @@ export default async function handler(
     );
   });
 
-  const blockedDatesRaw: Array<{ date: bigint }> = await prisma.$queryRaw`
-    SELECT
-      EXTRACT(DAY FROM S.DATE) AS date,
-      COUNT(S.date) AS amount,
-      CAST(((UTI.time_end_in_minutes - UTI.time_start_in_minutes) / 60) AS SIGNED) AS size
+  const blockedDatesRaw: Array<{ date: number }> = await prisma.$queryRaw`
+  SELECT
+    EXTRACT(DAY FROM S.DATE) AS date,
+    COUNT(S.date),
+    ((UTI.time_end_in_minutes - UTI.time_start_in_minutes) / 60)
 
-    FROM schedulings S
+  FROM schedulings S
 
-    LEFT JOIN user_time_intervals UTI
-      ON UTI.week_day = WEEKDAY(DATE_ADD(S.date, INTERVAL 1 DAY))
+  LEFT JOIN user_time_intervals UTI
+    ON UTI.week_day = EXTRACT(DOW FROM S.date + INTERVAL '1 day')
 
-    WHERE S.user_id = ${user.id}
-      AND DATE_FORMAT(S.date, "%Y-%m") = ${`${year}-${month}`}
+  WHERE S.user_id = ${user.id}
+    AND EXTRACT(YEAR FROM S.date) = ${year}::int
+    AND EXTRACT(MONTH FROM S.date) = ${month}::int
 
-    GROUP BY EXTRACT(DAY FROM S.DATE),
-    CAST(((UTI.time_end_in_minutes - UTI.time_start_in_minutes) / 60) AS SIGNED)
+  GROUP BY EXTRACT(DAY FROM S.DATE),
+    ((UTI.time_end_in_minutes - UTI.time_start_in_minutes) / 60)
 
-    HAVING amount >= size 
-  `// amount = number of schedulings
+  HAVING
+    COUNT(S.date) >= ((UTI.time_end_in_minutes - UTI.time_start_in_minutes) / 60);
+  `
+  // amount = number of schedulings
   // size = number of avilable time slots
 
   const blockedDates = blockedDatesRaw.map((item) => Number(item.date))
