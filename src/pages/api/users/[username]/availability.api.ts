@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 import { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "../../../../lib/prisma";
+import utc from "dayjs/plugin/utc";
 
 /**
  * @route GET /api/users/[username]/availability
@@ -33,6 +34,8 @@ import { prisma } from "../../../../lib/prisma";
  *   .catch(error => console.error(error));
  */
 
+dayjs.extend(utc);
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -42,9 +45,9 @@ export default async function handler(
   }
 
   const username = String(req.query.username);
-  const { date } = req.query;
+  const { date, timezoneOffset } = req.query;
 
-  if (!date) {
+  if (!date || !timezoneOffset) {
     return res.status(400).json({ message: "Date no provided." });
   }
 
@@ -60,6 +63,15 @@ export default async function handler(
 
   const referenceDate = dayjs(String(date));
   const isPastDate = referenceDate.endOf("day").isBefore(new Date());
+
+  const timezoneOffsetInHours =
+    // eslint-disable-next-line prettier/prettier
+    typeof timezoneOffset === 'string'
+      ? Number(timezoneOffset) / 60
+      : Number(timezoneOffset[0]) / 60;
+
+  const referenceDateTimeZoneOffsetInHours =
+    referenceDate.toDate().getTimezoneOffset() / 60;
 
   // If the date has already passed, availability`s array will be empty
   if (isPastDate) {
@@ -99,8 +111,14 @@ export default async function handler(
       user_id: user.id,
       date: {
         // gte = greater than or equal
-        gte: referenceDate.set("hour", startHour).toDate(),
-        lte: referenceDate.set("hour", endHour).toDate(),
+        gte: referenceDate
+          .set("hour", startHour)
+          .add(timezoneOffsetInHours, "hours")
+          .toDate(),
+        lte: referenceDate
+          .set("hour", endHour)
+          .add(timezoneOffsetInHours, "hours")
+          .toDate(),
       },
     },
   });
@@ -108,11 +126,16 @@ export default async function handler(
   // filter possibleTimes by removing all blocked times
   const availableTimes = possibleTimes.filter((time) => {
     const isTimeBlocked = blockedTimes.some(
-      (blockedTime) => blockedTime.date.getHours() === time
+      (blockedTime) =>
+        blockedTime.date.getUTCHours() - timezoneOffsetInHours === time
     );
 
     // block hours that already passed up
-    const isTimeInPast = referenceDate.set("hour", time).isBefore(new Date());
+    const isTimeInPast = referenceDate
+      .set("hour", time)
+      .subtract(referenceDateTimeZoneOffsetInHours, "hours")
+      .isBefore(dayjs().utc().subtract(timezoneOffsetInHours, "hours"));
+
     return !isTimeBlocked && !isTimeInPast;
   });
 
